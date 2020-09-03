@@ -1,0 +1,26 @@
+version: "3"
+
+services:
+  duplicati:
+    build:
+      context: "."
+    environment:
+      - "PUID=0"
+      - "PGID=0"
+      - "TZ=Europe/London"
+    ports:
+      - "8200:8200"
+    restart: "always"
+    volumes:
+      - "/dev/rtc:/dev/rtc:ro"
+      - "/var/run/docker.sock:/var/run/docker.sock:ro"
+      - "backups:/backups"
+      - "config:/config"
+      - "data:/data"
+      - "source:/source"
+
+volumes:
+  backups:
+  config:
+  data:
+  source:
