@@ -14,13 +14,14 @@ services:
     volumes:
       - "/dev/rtc:/dev/rtc:ro"
       - "/var/run/docker.sock:/var/run/docker.sock:ro"
-      - "backups:/backups"
       - "config:/config"
       - "data:/data"
       - "source:/source"
+      - "shared_backups:/backups"
 
 volumes:
-  backups:
   config:
   data:
   source:
+  shared_backups:
+    external: true
