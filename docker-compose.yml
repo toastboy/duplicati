@@ -4,6 +4,7 @@ services:
   duplicati:
     build:
       context: "."
+    hostname: "${HOSTNAME:-duplicati}"
     environment:
       - "PUID=0"
       - "PGID=0"
