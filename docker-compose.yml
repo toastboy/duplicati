@@ -4,6 +4,7 @@ services:
   duplicati:
     build:
       context: "."
+    container_name: "duplicati"
     hostname: "${HOSTNAME:-duplicati}"
     environment:
       - "PUID=0"
@@ -26,3 +27,8 @@ volumes:
   source:
   shared_backups:
     external: true
+
+networks:
+  default:
+    external:
+      name: "shared_network"
