@@ -11,32 +11,32 @@ LOCALPATH=$DUPLICATI__LOCALPATH
 
 # Stop the app to guarantee coherency
 function app_stop {
-    docker stop mailu_admin_1
-    docker stop mailu_antispam_1
-    docker stop mailu_antivirus_1
-    docker stop mailu_fetchmail_1
-    docker stop mailu_front_1
-    docker stop mailu_imap_1
-    docker stop mailu_redis_1
-    docker stop mailu_resolver_1
-    docker stop mailu_smtp_1
-    docker stop mailu_webdav_1
-    docker stop mailu_webmail_1
+    docker stop mail-admin
+    docker stop mail-antispam
+    docker stop mail-antivirus
+    docker stop mail-fetchmail
+    docker stop mail
+    docker stop mail-imap
+    docker stop mail-redis
+    docker stop mail-resolver
+    docker stop mail-smtp
+    docker stop mail-webdav
+    docker stop mail-webmail
 }
 
 # Start the app once more
 function app_start {
-    docker start mailu_admin_1
-    docker start mailu_antispam_1
-    docker start mailu_antivirus_1
-    docker start mailu_fetchmail_1
-    docker start mailu_front_1
-    docker start mailu_imap_1
-    docker start mailu_redis_1
-    docker start mailu_resolver_1
-    docker start mailu_smtp_1
-    docker start mailu_webdav_1
-    docker start mailu_webmail_1
+    docker start mail-admin
+    docker start mail-antispam
+    docker start mail-antivirus
+    docker start mail-fetchmail
+    docker start mail
+    docker start mail-imap
+    docker start mail-redis
+    docker start mail-resolver
+    docker start mail-smtp
+    docker start mail-webdav
+    docker start mail-webmail
 }
 
 # Basic setup, we use the same file for both before and after,
@@ -50,7 +50,7 @@ then
         app_stop
         # Deliberately not backing up certs as they can and should be
         # regenerated
-        docker exec mailu_backup_1 rsync --recursive --archive --delete --quiet --times --relative --checksum --delete-missing-args /data/ /dav/ /dkim/ /filter/ /mail/ /overrides/ /redis/ /webmail/ /backups/mailu/
+        docker exec mail-backup rsync --recursive --archive --delete --quiet --times --relative --checksum --delete-missing-args /data/ /dav/ /dkim/ /filter/ /mail/ /overrides/ /redis/ /webmail/ /backups/mail-
         app_start
     elif [ "$OPERATIONNAME" == "Restore" ]
     then
@@ -65,14 +65,14 @@ then
     if [ "$OPERATIONNAME" == "Restore" ]
     then
         app_stop
-        docker exec mailu_backup_1 rsync --recursive --archive --delete --quiet --times --checksum --delete-missing-args /backups/mailu/data/ /data/
-        docker exec mailu_backup_1 rsync --recursive --archive --delete --quiet --times --checksum --delete-missing-args /backups/mailu/dav/ /dav/
-        docker exec mailu_backup_1 rsync --recursive --archive --delete --quiet --times --checksum --delete-missing-args /backups/mailu/dkim/ /dkim/
-        docker exec mailu_backup_1 rsync --recursive --archive --delete --quiet --times --checksum --delete-missing-args /backups/mailu/filter/ /filter/
-        docker exec mailu_backup_1 rsync --recursive --archive --delete --quiet --times --checksum --delete-missing-args /backups/mailu/mail/ /mail/
-        docker exec mailu_backup_1 rsync --recursive --archive --delete --quiet --times --checksum --delete-missing-args /backups/mailu/overrides/ /overrides/
-        docker exec mailu_backup_1 rsync --recursive --archive --delete --quiet --times --checksum --delete-missing-args /backups/mailu/redis/ /redis/
-        docker exec mailu_backup_1 rsync --recursive --archive --delete --quiet --times --checksum --delete-missing-args /backups/mailu/webmail/ /webmail/
+        docker exec mailu_backup rsync --recursive --archive --delete --quiet --times --checksum --delete-missing-args /backups/mail-data/ /data/
+        docker exec mailu_backup rsync --recursive --archive --delete --quiet --times --checksum --delete-missing-args /backups/mail-dav/ /dav/
+        docker exec mailu_backup rsync --recursive --archive --delete --quiet --times --checksum --delete-missing-args /backups/mail-dkim/ /dkim/
+        docker exec mailu_backup rsync --recursive --archive --delete --quiet --times --checksum --delete-missing-args /backups/mail-filter/ /filter/
+        docker exec mailu_backup rsync --recursive --archive --delete --quiet --times --checksum --delete-missing-args /backups/mail-mail/ /mail/
+        docker exec mailu_backup rsync --recursive --archive --delete --quiet --times --checksum --delete-missing-args /backups/mail-overrides/ /overrides/
+        docker exec mailu_backup rsync --recursive --archive --delete --quiet --times --checksum --delete-missing-args /backups/mail-redis/ /redis/
+        docker exec mailu_backup rsync --recursive --archive --delete --quiet --times --checksum --delete-missing-args /backups/mail-webmail/ /webmail/
         app_start
     fi
 

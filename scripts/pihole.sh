@@ -18,15 +18,15 @@ then
     if [ "$OPERATIONNAME" == "Backup" ]
     then
         # Stop the app to guarantee coherency
-        docker stop pihole_pihole_1
+        docker stop pihole
         mkdir -p /backups/pihole/config
         mkdir -p /backups/pihole/dnsmasq
-        docker exec pihole_backup_1 rsync -rtav --delete-missing-args /config/adlists.list /config/adlists.list /config/auditlog.list /config/blacklist.txt /config/regex.list /config/setupVars.conf /config/whitelist.txt /backups/pihole/config
-        docker exec pihole_backup_1 rsync -rtav --delete-missing-args /dnsmasq/01-pihole.conf /backups/pihole/dnsmasq
+        docker exec pihole-backup rsync -rtav --delete-missing-args /config/adlists.list /config/adlists.list /config/auditlog.list /config/blacklist.txt /config/regex.list /config/setupVars.conf /config/whitelist.txt /backups/pihole/config
+        docker exec pihole-backup rsync -rtav --delete-missing-args /dnsmasq/01-pihole.conf /backups/pihole/dnsmasq
     elif [ "$OPERATIONNAME" == "Restore" ]
     then
         # Stop the app to guarantee coherency
-        docker stop pihole_pihole_1
+        docker stop pihole
     fi
 
 elif [ "$EVENTNAME" == "AFTER" ]
@@ -37,9 +37,9 @@ then
     if [ "$OPERATIONNAME" == "Restore" ]
     then
         # Reinstate the files and start the app once more
-        docker exec pihole_backup_1 rsync -rtav --delete-missing-args /config/adlists.list /backups/pihole/config/* /config/
-        docker exec pihole_backup_1 rsync -rtav --delete-missing-args /backups/pihole/dnsmasq/* /dnsmasq/
-        docker start pihole_pihole_1
+        docker exec pihole-backup rsync -rtav --delete-missing-args /config/adlists.list /backups/pihole/config/* /config/
+        docker exec pihole-backup rsync -rtav --delete-missing-args /backups/pihole/dnsmasq/* /dnsmasq/
+        docker start pihole
     fi
 
 else

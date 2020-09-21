@@ -19,18 +19,18 @@ then
     then
         # This one's more for information, really. Not used directly
         # in the restore.
-        docker exec sonarr_sonarr_1 sqlite3 /config/sonarr.db .dump > /data/sonarr.sql
+        docker exec sonarr sqlite3 /config/sonarr.db .dump > /data/sonarr.sql
         # Stop the app to guarantee coherency
-        docker stop sonarr_sonarr_1
+        docker stop sonarr
         # These two files are the only ones that Sonarr backs up itself
-        docker cp sonarr_sonarr_1:/config/config.xml /data/config.xml
-        docker cp sonarr_sonarr_1:/config/sonarr.db /data/sonarr.db
+        docker cp sonarr:/config/config.xml /data/config.xml
+        docker cp sonarr:/config/sonarr.db /data/sonarr.db
     elif [ "$OPERATIONNAME" == "Restore" ]
     then
         # Delete all db files as per documentation
-        docker exec sonarr_sonarr_1 rm -f /config/sonarr.db /config/sonarr.db-shm /config/sonarr.db-wal
+        docker exec sonarr rm -f /config/sonarr.db /config/sonarr.db-shm /config/sonarr.db-wal
         # Stop the app to guarantee coherency
-        docker stop sonarr_sonarr_1
+        docker stop sonarr
     fi
 
 elif [ "$EVENTNAME" == "AFTER" ]
@@ -39,7 +39,7 @@ then
     # If we're being run after a backup, clean up the files we made
     if [ "$OPERATIONNAME" == "Backup" ]
     then
-        docker start sonarr_sonarr_1
+        docker start sonarr
         rm -f /data/config.xml
         rm -f /data/sonarr.db
         rm -f /data/sonarr.sql
@@ -48,10 +48,10 @@ then
     elif [ "$OPERATIONNAME" == "Restore" ]
     then
         # Reinstate the files and start the app once more
-        docker cp /data/config.xml sonarr_sonarr_1:/config/config.xml
-        docker cp /data/sonarr.db sonarr_sonarr_1:/config/sonarr.db
-        docker cp /data/sonarr.sql sonarr_sonarr_1:/config/sonarr.sql
-        docker start sonarr_sonarr_1
+        docker cp /data/config.xml sonarr:/config/config.xml
+        docker cp /data/sonarr.db sonarr:/config/sonarr.db
+        docker cp /data/sonarr.sql sonarr:/config/sonarr.sql
+        docker start sonarr
         rm -f /data/config.xml
         rm -f /data/sonarr.db
         rm -f /data/sonarr.sql

@@ -18,10 +18,10 @@ then
     if [ "$OPERATIONNAME" == "Backup" ]
     then
         # Stop the app to guarantee coherency
-        docker stop headphones_headphones_1
+        docker stop headphones
         # These two files are the only ones that Headphones backs up itself
-        docker cp headphones_headphones_1:/config/config.ini /data/config.ini
-        docker cp headphones_headphones_1:/config/headphones.db /data/headphones.db
+        docker cp headphones:/config/config.ini /data/config.ini
+        docker cp headphones:/config/headphones.db /data/headphones.db
         # This one's more for information, really. Not used directly
         # in the restore. Doing the dump in the duplicati context
         # because headphones doesn't have sqlite installed (presumably
@@ -30,9 +30,9 @@ then
     elif [ "$OPERATIONNAME" == "Restore" ]
     then
         # Delete all db files as per documentation
-        docker exec headphones_headphones_1 rm -f /config/headphones.db /config/headphones.db-shm /config/headphones.db-wal
+        docker exec headphones rm -f /config/headphones.db /config/headphones.db-shm /config/headphones.db-wal
         # Stop the app to guarantee coherency
-        docker stop headphones_headphones_1
+        docker stop headphones
     fi
 
 elif [ "$EVENTNAME" == "AFTER" ]
@@ -41,7 +41,7 @@ then
     # If we're being run after a backup, clean up the files we made
     if [ "$OPERATIONNAME" == "Backup" ]
     then
-        docker start headphones_headphones_1
+        docker start headphones
         rm -f /data/config.ini
         rm -f /data/headphones.db
         rm -f /data/headphones.sql
@@ -50,10 +50,10 @@ then
     elif [ "$OPERATIONNAME" == "Restore" ]
     then
         # Reinstate the files and start the app once more
-        docker cp /data/config.ini headphones_headphones_1:/config/config.ini
-        docker cp /data/headphones.db headphones_headphones_1:/config/headphones.db
-        docker cp /data/headphones.sql headphones_headphones_1:/config/headphones.sql
-        docker start headphones_headphones_1
+        docker cp /data/config.ini headphones:/config/config.ini
+        docker cp /data/headphones.db headphones:/config/headphones.db
+        docker cp /data/headphones.sql headphones:/config/headphones.sql
+        docker start headphones
         rm -f /data/config.ini
         rm -f /data/headphones.db
         rm -f /data/headphones.sql
