@@ -9,6 +9,10 @@ OPERATIONNAME=$DUPLICATI__OPERATIONNAME
 REMOTEURL=$DUPLICATI__REMOTEURL
 LOCALPATH=$DUPLICATI__LOCALPATH
 
+# Make sure our backup location exists
+BACKUPDIR=/backups/radarr
+mkdir -p $BACKUPDIR
+
 # Basic setup, we use the same file for both before and after,
 # so we need to figure out which event has happened
 if [ "$EVENTNAME" == "BEFORE" ]
@@ -19,42 +23,30 @@ then
     then
         # This one's more for information, really. Not used directly
         # in the restore.
-        docker exec radarr sqlite3 /config/radarr.db .dump > /data/radarr.sql
+        docker exec radarr sqlite3 /config/radarr.db .dump > $BACKUPDIR/radarr.sql
         # Stop the app to guarantee coherency
         docker stop radarr
         # These two files are the only ones that Radarr backs up itself
-        docker cp radarr:/config/config.xml /data/config.xml
-        docker cp radarr:/config/radarr.db /data/radarr.db
-    elif [ "$OPERATIONNAME" == "Restore" ]
-    then
-        # Delete all db files as per documentation
-        docker exec radarr rm -f /config/radarr.db /config/radarr.db-shm /config/radarr.db-wal
-        # Stop the app to guarantee coherency
-        docker stop radarr
+        docker cp radarr:/config/config.xml $BACKUPDIR/config.xml
+        docker cp radarr:/config/radarr.db $BACKUPDIR/radarr.db
+        docker start radarr
     fi
 
 elif [ "$EVENTNAME" == "AFTER" ]
 then
 
-    # If we're being run after a backup, clean up the files we made
-    if [ "$OPERATIONNAME" == "Backup" ]
+    # If we're being run after a restore, install the files into the container
+    if [ "$OPERATIONNAME" == "Restore" ]
     then
-        docker start radarr
-        rm -f /data/config.xml
-        rm -f /data/radarr.db
-        rm -f /data/radarr.sql
-    # If we're being run after a restore, inject the restored files
-    # and reinstate them
-    elif [ "$OPERATIONNAME" == "Restore" ]
-    then
+        # Delete all db files as per documentation
+        docker exec radarr rm -f /config/radarr.db /config/radarr.db-shm /config/radarr.db-wal
+        # Stop the app to guarantee coherency
+        docker stop radarr
         # Reinstate the files and start the app once more
-        docker cp /data/config.xml radarr:/config/config.xml
-        docker cp /data/radarr.db radarr:/config/radarr.db
-        docker cp /data/radarr.sql radarr:/config/radarr.sql
+        docker cp $BACKUPDIR/config.xml radarr:/config/config.xml
+        docker cp $BACKUPDIR/radarr.db radarr:/config/radarr.db
+        docker cp $BACKUPDIR/radarr.sql radarr:/config/radarr.sql
         docker start radarr
-        rm -f /data/config.xml
-        rm -f /data/radarr.db
-        rm -f /data/radarr.sql
     fi
 
 else

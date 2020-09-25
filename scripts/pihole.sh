@@ -9,7 +9,23 @@ OPERATIONNAME=$DUPLICATI__OPERATIONNAME
 REMOTEURL=$DUPLICATI__REMOTEURL
 LOCALPATH=$DUPLICATI__LOCALPATH
 
+# Make sure our backup location exists
+BACKUPDIR=/backups/pihole
+mkdir -p $BACKUPDIR
+
 # Basic setup, we use the same file for both before and after,
+# Stop the app to guarantee coherency
+function app_stop {
+    docker stop pihole
+    docker stop pihole-unbound
+}
+
+# Start the app once more
+function app_start {
+    docker start pihole
+    docker start pihole-unbound
+}
+
 # so we need to figure out which event has happened
 if [ "$EVENTNAME" == "BEFORE" ]
 then
@@ -18,15 +34,12 @@ then
     if [ "$OPERATIONNAME" == "Backup" ]
     then
         # Stop the app to guarantee coherency
-        docker stop pihole
-        mkdir -p /backups/pihole/config
-        mkdir -p /backups/pihole/dnsmasq
-        docker exec pihole-backup rsync -rtav --delete-missing-args /config/adlists.list /config/adlists.list /config/auditlog.list /config/blacklist.txt /config/regex.list /config/setupVars.conf /config/whitelist.txt /backups/pihole/config
-        docker exec pihole-backup rsync -rtav --delete-missing-args /dnsmasq/01-pihole.conf /backups/pihole/dnsmasq
-    elif [ "$OPERATIONNAME" == "Restore" ]
-    then
-        # Stop the app to guarantee coherency
-        docker stop pihole
+        app_stop
+        mkdir -p $BACKUPDIR/config
+        mkdir -p $BACKUPDIR/dnsmasq
+        docker exec pihole-backup rsync -rtav --delete-missing-args /config/adlists.list /config/adlists.list /config/auditlog.list /config/blacklist.txt /config/regex.list /config/setupVars.conf /config/whitelist.txt $BACKUPDIR/config
+        docker exec pihole-backup rsync -rtav --delete-missing-args /dnsmasq/01-pihole.conf $BACKUPDIR/dnsmasq
+        app_start
     fi
 
 elif [ "$EVENTNAME" == "AFTER" ]
@@ -36,10 +49,11 @@ then
     # and reinstate them
     if [ "$OPERATIONNAME" == "Restore" ]
     then
+        app_stop
         # Reinstate the files and start the app once more
-        docker exec pihole-backup rsync -rtav --delete-missing-args /config/adlists.list /backups/pihole/config/* /config/
-        docker exec pihole-backup rsync -rtav --delete-missing-args /backups/pihole/dnsmasq/* /dnsmasq/
-        docker start pihole
+        docker exec pihole-backup rsync -rtav --delete-missing-args /config/adlists.list $BACKUPDIR/config/* /config/
+        docker exec pihole-backup rsync -rtav --delete-missing-args $BACKUPDIR/dnsmasq/* /dnsmasq/
+        app_start
     fi
 
 else

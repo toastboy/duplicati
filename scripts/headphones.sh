@@ -9,6 +9,10 @@ OPERATIONNAME=$DUPLICATI__OPERATIONNAME
 REMOTEURL=$DUPLICATI__REMOTEURL
 LOCALPATH=$DUPLICATI__LOCALPATH
 
+# Make sure our backup location exists
+BACKUPDIR=/backups/headphones
+mkdir -p $BACKUPDIR
+
 # Basic setup, we use the same file for both before and after,
 # so we need to figure out which event has happened
 if [ "$EVENTNAME" == "BEFORE" ]
@@ -20,43 +24,31 @@ then
         # Stop the app to guarantee coherency
         docker stop headphones
         # These two files are the only ones that Headphones backs up itself
-        docker cp headphones:/config/config.ini /data/config.ini
-        docker cp headphones:/config/headphones.db /data/headphones.db
+        docker cp headphones:/config/config.ini $BACKUPDIR/config.ini
+        docker cp headphones:/config/headphones.db $BACKUPDIR/headphones.db
         # This one's more for information, really. Not used directly
         # in the restore. Doing the dump in the duplicati context
         # because headphones doesn't have sqlite installed (presumably
         # does everything via the python lib)
-        sqlite3 /data/headphones.db .dump > /data/headphones.sql
-    elif [ "$OPERATIONNAME" == "Restore" ]
-    then
-        # Delete all db files as per documentation
-        docker exec headphones rm -f /config/headphones.db /config/headphones.db-shm /config/headphones.db-wal
-        # Stop the app to guarantee coherency
-        docker stop headphones
+        sqlite3 $BACKUPDIR/headphones.db .dump > $BACKUPDIR/headphones.sql
+        docker start headphones
     fi
 
 elif [ "$EVENTNAME" == "AFTER" ]
 then
 
-    # If we're being run after a backup, clean up the files we made
-    if [ "$OPERATIONNAME" == "Backup" ]
+    # If we're being run after a restore, install the files into the container
+    if [ "$OPERATIONNAME" == "Restore" ]
     then
-        docker start headphones
-        rm -f /data/config.ini
-        rm -f /data/headphones.db
-        rm -f /data/headphones.sql
-    # If we're being run after a restore, inject the restored files
-    # and reinstate them
-    elif [ "$OPERATIONNAME" == "Restore" ]
-    then
+        # Delete all db files as per documentation
+        docker exec headphones rm -f /config/headphones.db /config/headphones.db-shm /config/headphones.db-wal
+        # Stop the app to guarantee coherency
+        docker stop headphones
         # Reinstate the files and start the app once more
-        docker cp /data/config.ini headphones:/config/config.ini
-        docker cp /data/headphones.db headphones:/config/headphones.db
-        docker cp /data/headphones.sql headphones:/config/headphones.sql
+        docker cp $BACKUPDIR/config.ini headphones:/config/config.ini
+        docker cp $BACKUPDIR/headphones.db headphones:/config/headphones.db
+        docker cp $BACKUPDIR/headphones.sql headphones:/config/headphones.sql
         docker start headphones
-        rm -f /data/config.ini
-        rm -f /data/headphones.db
-        rm -f /data/headphones.sql
     fi
 
 else

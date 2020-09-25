@@ -9,6 +9,10 @@ OPERATIONNAME=$DUPLICATI__OPERATIONNAME
 REMOTEURL=$DUPLICATI__REMOTEURL
 LOCALPATH=$DUPLICATI__LOCALPATH
 
+# Make sure our backup location exists
+BACKUPDIR=/backups/sabnzbd
+mkdir -p $BACKUPDIR
+
 # Basic setup, we use the same file for both before and after,
 # so we need to figure out which event has happened
 if [ "$EVENTNAME" == "BEFORE" ]
@@ -21,33 +25,25 @@ then
         docker stop sabnzbd
         # There's only 1 file that needs backing up according to:
         # https://forums.sabnzbd.org/viewtopic.php?t=24102
-        docker cp sabnzbd:/config/sabnzbd.ini /data/sabnzbd.ini
-    elif [ "$OPERATIONNAME" == "Restore" ]
-    then
-        # Stop the app to guarantee coherency
-        docker stop sabnzbd
+        docker cp sabnzbd:/config/sabnzbd.ini $BACKUPDIR/sabnzbd.ini
+        docker start sabnzbd
     fi
 
 elif [ "$EVENTNAME" == "AFTER" ]
 then
 
-    # If we're being run after a backup, clean up the files we made
-    if [ "$OPERATIONNAME" == "Backup" ]
+    # If we're being run after a restore, install the files into the container
+    if [ "$OPERATIONNAME" == "Restore" ]
     then
-        docker start sabnzbd
-        rm -f /data/sabnzbd.ini
-    # If we're being run after a restore, inject the restored files
-    # and reinstate them
-    elif [ "$OPERATIONNAME" == "Restore" ]
-    then
+        # Stop the app to guarantee coherency
+        docker stop sabnzbd
         # Reinstate the files and start the app once more, making sure
         # we get file ownership and permissions right
-        docker cp /data/sabnzbd.ini sabnzbd:/config/sabnzbd.ini
+        docker cp $BACKUPDIR/sabnzbd.ini sabnzbd:/config/sabnzbd.ini
         docker start sabnzbd
         docker exec sabnzbd chown abc:abc /config/sabnzbd.ini
         docker exec sabnzbd chmod 600 /config/sabnzbd.ini
         docker restart sabnzbd
-        rm -f /data/sabnzbd.ini
     fi
 
 else
