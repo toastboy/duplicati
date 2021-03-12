@@ -10,6 +10,7 @@ services:
       - "PUID=0"
       - "PGID=0"
       - "TZ=Europe/London"
+      - "CLI_ARGS=--send-mail-to=bots@toastboy.co.uk --send-mail-from=bots@toastboy.co.uk --send-mail-username=bots@toastboy.co.uk --send-mail-password=QfgByXMGg6oVM8cbZ29M"
     restart: "always"
     volumes:
       - "/dev/rtc:/dev/rtc:ro"
