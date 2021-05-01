@@ -7,8 +7,8 @@ services:
     container_name: "duplicati"
     hostname: "${HOSTNAME:-duplicati}"
     environment:
-      - "PUID=0"
-      - "PGID=0"
+      - "PUID=${PUID:-1000}"
+      - "PGID=${PGID:-1000}"
       - "TZ=Europe/London"
       - "CLI_ARGS=--send-mail-to=bots@toastboy.co.uk --send-mail-from=bots@toastboy.co.uk --send-mail-username=bots@toastboy.co.uk --send-mail-password=QfgByXMGg6oVM8cbZ29M"
     restart: "always"
