@@ -21,6 +21,10 @@ function app_stop {
             docker stop headphones
             ;;
 
+        "jackett")
+            docker stop jackett
+            ;;
+
         "jenkins")
             docker stop jenkins
             ;;
@@ -56,6 +60,10 @@ function app_stop {
             docker stop sonarr
             ;;
 
+        "transmission")
+            docker stop transmission
+            ;;
+
         *)
             echo "Unrecognised backup name in app_stop"
             ;;
@@ -67,6 +75,10 @@ function app_start {
 
         "headphones")
             docker start headphones
+            ;;
+
+        "jackett")
+            docker start jackett
             ;;
 
         "jenkins")
@@ -102,6 +114,10 @@ function app_start {
 
         "sonarr")
             docker start sonarr
+            ;;
+
+        "transmission")
+            docker start transmission
             ;;
 
         *)
@@ -144,6 +160,10 @@ function do_backup {
             sqlite3 $BACKUPDIR/headphones.db .dump > $BACKUPDIR/headphones.sql
             ;;
 
+        "jackett")
+            docker exec jackett-backup rsync --recursive --archive --delete --quiet --times --checksum --delete-missing-args /config/ /backups/jackett/
+            ;;
+
         "jenkins")
             docker exec jenkins-backup rsync --recursive --archive --delete --quiet --times --checksum --delete-missing-args --exclude "plugins" --exclude "war" --exclude "identity.key.enc" /var/jenkins_home/ /backups/jenkins/
             ;;
@@ -177,6 +197,10 @@ function do_backup {
             # These two files are the only ones that Sonarr backs up itself
             docker cp sonarr:/config/config.xml $BACKUPDIR/config.xml
             docker cp sonarr:/config/sonarr.db $BACKUPDIR/sonarr.db
+            ;;
+
+        "transmission")
+            docker exec transmission-backup rsync --recursive --archive --delete --quiet --times --checksum --delete-missing-args /config/ /backups/transmission/
             ;;
 
         *)
@@ -225,6 +249,10 @@ function do_restore {
             docker cp $BACKUPDIR/headphones.sql headphones:/config/headphones.sql
             ;;
 
+        "jackett")
+            docker exec jackett-backup rsync --recursive --archive --quiet --times --checksum /backups/jackett/ /config/
+            ;;
+
         "jenkins")
             docker exec jenkins-backup rsync --recursive --archive --quiet --times --checksum /backups/jenkins/ /var/jenkins_home/
             ;;
@@ -264,6 +292,10 @@ function do_restore {
             docker cp $BACKUPDIR/config.xml sonarr:/config/config.xml
             docker cp $BACKUPDIR/sonarr.db sonarr:/config/sonarr.db
             docker cp $BACKUPDIR/sonarr.sql sonarr:/config/sonarr.sql
+            ;;
+
+        "transmission")
+            docker exec transmission-backup rsync --recursive --archive --quiet --times --checksum /backups/transmission/ /config/
             ;;
 
         *)
