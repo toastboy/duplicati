@@ -2,8 +2,7 @@ version: "3"
 
 services:
   duplicati:
-    build:
-      context: "."
+    image: "toastboy/duplicati"
     container_name: "duplicati"
     hostname: "${HOSTNAME:-duplicati}"
     environment:
