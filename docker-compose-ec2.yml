@@ -1,0 +1,8 @@
+version: "3"
+
+# Override for the base docker-compose. Use it like this:
+# docker-compose -f docker-compose.yml -f docker-compose-hhh.yml up -d
+
+services:
+  duplicati:
+    hostname: "ec2"

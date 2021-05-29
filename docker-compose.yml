@@ -4,7 +4,6 @@ services:
   duplicati:
     image: "toastboy/duplicati"
     container_name: "duplicati"
-    hostname: "${HOSTNAME:-duplicati}"
     environment:
       - "PUID=${PUID:-1000}"
       - "PGID=${PGID:-1000}"
