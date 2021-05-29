@@ -60,6 +60,10 @@ function app_stop {
             docker stop sonarr
             ;;
 
+        "syncthing")
+            docker stop syncthing
+            ;;
+
         "transmission")
             docker stop transmission
             ;;
@@ -114,6 +118,10 @@ function app_start {
 
         "sonarr")
             docker start sonarr
+            ;;
+
+        "syncthing")
+            docker start syncthing
             ;;
 
         "transmission")
@@ -197,6 +205,12 @@ function do_backup {
             # These two files are the only ones that Sonarr backs up itself
             docker cp sonarr:/config/config.xml $BACKUPDIR/config.xml
             docker cp sonarr:/config/sonarr.db $BACKUPDIR/sonarr.db
+            ;;
+
+        "syncthing")
+            docker cp syncthing:/var/syncthing/config/cert.pem $BACKUPDIR/cert.pem
+            docker cp syncthing:/var/syncthing/config/config.xml $BACKUPDIR/config.xml
+            docker cp syncthing:/var/syncthing/config/key.pem $BACKUPDIR/key.pem
             ;;
 
         "transmission")
@@ -292,6 +306,12 @@ function do_restore {
             docker cp $BACKUPDIR/config.xml sonarr:/config/config.xml
             docker cp $BACKUPDIR/sonarr.db sonarr:/config/sonarr.db
             docker cp $BACKUPDIR/sonarr.sql sonarr:/config/sonarr.sql
+            ;;
+
+        "syncthing")
+            docker cp $BACKUPDIR/cert.pem syncthing:/var/syncthing/config/cert.pem
+            docker cp $BACKUPDIR/config.xml syncthing:/var/syncthing/config/config.xml
+            docker cp $BACKUPDIR/key.pem syncthing:/var/syncthing/config/key.pem
             ;;
 
         "transmission")
