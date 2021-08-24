@@ -29,6 +29,10 @@ function app_stop {
             docker stop jenkins
             ;;
 
+        "lidarr")
+            docker stop lidarr
+            ;;
+
         "mailu")
             docker stop mail-admin
             docker stop mail-antispam
@@ -68,6 +72,10 @@ function app_stop {
             docker stop transmission
             ;;
 
+        "unifi-video")
+            docker stop unifi-video
+            ;;
+
         *)
             echo "Unrecognised backup name in app_stop"
             ;;
@@ -87,6 +95,10 @@ function app_start {
 
         "jenkins")
             docker start jenkins
+            ;;
+
+        "lidarr")
+            docker start lidarr
             ;;
 
         "mailu")
@@ -128,6 +140,10 @@ function app_start {
             docker start transmission
             ;;
 
+        "unifi-video")
+            docker start unifi-video
+            ;;
+
         *)
             echo "Unrecognised backup name in app_start"
             ;;
@@ -136,6 +152,12 @@ function app_start {
 
 function do_pre_backup {
     case "$BACKUPNAME" in
+
+        "lidarr")
+            # This one's more for information, really. Not used directly
+            # in the restore.
+            docker exec lidarr sqlite3 /config/lidarr.db .dump > $BACKUPDIR/lidarr.sql
+            ;;
 
         "radarr")
             # This one's more for information, really. Not used directly
@@ -174,6 +196,12 @@ function do_backup {
 
         "jenkins")
             docker exec jenkins-backup rsync --recursive --archive --delete --quiet --times --checksum --delete-missing-args --exclude "plugins" --exclude "war" --exclude "identity.key.enc" /var/jenkins_home/ /backups/jenkins/
+            ;;
+
+        "lidarr")
+            # This is different to radarr and sonarr because I want to back up
+            # the multi-GiB caches too, for convenience
+            docker exec lidarr-backup rsync --recursive --archive --delete --quiet --times --checksum --delete-missing-args --one-file-system /config/ /backups/lidarr/
             ;;
 
         "mailu")
@@ -217,6 +245,10 @@ function do_backup {
             docker exec transmission-backup rsync --recursive --archive --delete --quiet --times --checksum --delete-missing-args /config/ /backups/transmission/
             ;;
 
+        "unifi-video")
+            docker exec unifi-video-backup rsync --recursive --archive --delete --quiet --times --checksum --delete-missing-args --one-file-system /data/ /backups/unifi-video/
+            ;;
+
         *)
             echo "Unrecognised backup name in do_backup"
             ;;
@@ -233,6 +265,11 @@ function do_post_backup {
 
 function do_pre_restore {
     case "$BACKUPNAME" in
+
+        "lidarr")
+            # Delete all db files as per documentation
+            docker exec lidarr rm -f /config/lidarr.db /config/lidarr.db-shm /config/lidarr.db-wal
+            ;;
 
         "radarr")
             # Delete all db files as per documentation
@@ -269,6 +306,10 @@ function do_restore {
 
         "jenkins")
             docker exec jenkins-backup rsync --recursive --archive --quiet --times --checksum /backups/jenkins/ /var/jenkins_home/
+            ;;
+
+        "lidarr")
+            docker exec lidarr-backup rsync --recursive --archive --quiet --times --checksum /backups/lidarr/ /config/
             ;;
 
         "mailu")
@@ -316,6 +357,10 @@ function do_restore {
 
         "transmission")
             docker exec transmission-backup rsync --recursive --archive --quiet --times --checksum /backups/transmission/ /config/
+            ;;
+
+        "unifi-video")
+            docker exec unifi-video-backup rsync --recursive --archive --quiet --times --checksum /backups/unifi-video/ /data/
             ;;
 
         *)
