@@ -195,7 +195,7 @@ function do_backup {
             ;;
 
         "jenkins")
-            docker exec jenkins-backup rsync --recursive --archive --delete --quiet --times --checksum --delete-missing-args --exclude "plugins" --exclude "war" --exclude "identity.key.enc" /var/jenkins_home/ /backups/jenkins/
+            docker exec jenkins-backup rsync --recursive --archive --delete --quiet --times --checksum --delete-missing-args --exclude "plugins" --exclude "war" --exclude "workspace" --exclude "identity.key.enc" /var/jenkins_home/ /backups/jenkins/
             ;;
 
         "lidarr")
