@@ -249,6 +249,11 @@ function do_backup {
             docker exec unifi-video-backup rsync --recursive --archive --delete --quiet --times --checksum --delete-missing-args --one-file-system /data/ /backups/unifi-video/
             ;;
 
+        "www-toastboy")
+            # This is a special case - for now, the cron sidecar copies its
+            # backups directly into the backups volume
+            ;;
+
         *)
             echo "Unrecognised backup name in do_backup"
             ;;
@@ -361,6 +366,10 @@ function do_restore {
 
         "unifi-video")
             docker exec unifi-video-backup rsync --recursive --archive --quiet --times --checksum /backups/unifi-video/ /data/
+            ;;
+
+        "www-toastboy")
+            docker exec www-cron /root/mysqlrestore
             ;;
 
         *)
