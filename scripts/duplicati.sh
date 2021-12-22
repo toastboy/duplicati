@@ -49,7 +49,6 @@ function app_stop {
 
         "pihole")
             docker stop pihole
-            docker stop pihole-unbound
             ;;
 
         "radarr")
@@ -117,7 +116,6 @@ function app_start {
 
         "pihole")
             docker start pihole
-            docker start pihole-unbound
             ;;
 
         "radarr")
