@@ -25,6 +25,10 @@ function app_stop {
             docker stop jackett
             ;;
 
+        "jellyfin")
+            docker stop jellyfin
+            ;;
+
         "jenkins")
             docker stop jenkins
             ;;
@@ -90,6 +94,10 @@ function app_start {
 
         "jackett")
             docker start jackett
+            ;;
+
+        "jellyfin")
+            docker start jellyfin
             ;;
 
         "jenkins")
@@ -190,6 +198,10 @@ function do_backup {
 
         "jackett")
             docker exec jackett-backup rsync --recursive --archive --delete --quiet --times --checksum --delete-missing-args /config/ /backups/jackett/
+            ;;
+
+        "jellyfin")
+            docker exec jellyfin-backup rsync --recursive --archive --delete --quiet --times --checksum --delete-missing-args /config/ /backups/jellyfin/
             ;;
 
         "jenkins")
@@ -305,6 +317,10 @@ function do_restore {
 
         "jackett")
             docker exec jackett-backup rsync --recursive --archive --quiet --times --checksum /backups/jackett/ /config/
+            ;;
+
+        "jellyfin")
+            docker exec jellyfin-backup rsync --recursive --archive --quiet --times --checksum /backups/jellyfin/ /config/
             ;;
 
         "jenkins")
