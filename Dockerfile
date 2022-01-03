@@ -1,4 +1,4 @@
-FROM linuxserver/duplicati
+FROM duplicati/duplicati
 
 # Add docker ready to be connected to the host docker engine so we can
 # run scripts to extract or inject the minimal backup set from/to each
