@@ -71,6 +71,10 @@ function app_stop {
             docker stop syncthing
             ;;
 
+        "teslamate")
+            docker stop teslamate
+            ;;
+
         "transmission")
             docker stop transmission
             ;;
@@ -140,6 +144,10 @@ function app_start {
 
         "syncthing")
             docker start syncthing
+            ;;
+
+        "teslamate")
+            docker start teslamate
             ;;
 
         "transmission")
@@ -250,6 +258,10 @@ function do_backup {
             docker cp syncthing:/var/syncthing/config/config.xml $BACKUPDIR/config.xml
             docker cp syncthing:/var/syncthing/config/key.pem $BACKUPDIR/key.pem
             ;;
+
+        "teslamate")
+            # https://docs.teslamate.org/docs/maintenance/backup_restore/
+            docker exec teslamate-db pg_dump -U teslamate teslamate > $BACKUPDIR/teslamate.bck
 
         "transmission")
             docker exec transmission-backup rsync --recursive --archive --delete --quiet --times --checksum --delete-missing-args /config/ /backups/transmission/
@@ -372,6 +384,12 @@ function do_restore {
             docker cp $BACKUPDIR/cert.pem syncthing:/var/syncthing/config/cert.pem
             docker cp $BACKUPDIR/config.xml syncthing:/var/syncthing/config/config.xml
             docker cp $BACKUPDIR/key.pem syncthing:/var/syncthing/config/key.pem
+            ;;
+
+        "teslamate")
+            # https://docs.teslamate.org/docs/maintenance/backup_restore/
+            docker exec teslamate-db psql -U teslamate < /scripts/clean-teslamate-db.sql
+            docker exec teslamate-db psql -U teslamate -d teslamate < $BACKUPDIR/teslamate.bck
             ;;
 
         "transmission")
