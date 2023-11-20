@@ -270,6 +270,10 @@ function do_backup {
         docker exec transmission-backup rsync --recursive --archive --delete --quiet --times --checksum --delete-missing-args /config/ /backups/transmission/
         ;;
 
+    "unifi")
+        docker exec unifi-backup rsync --recursive --archive --delete --quiet --times --checksum --delete-missing-args --one-file-system /config/ /backups/unifi/
+        ;;
+
     "unifi-video")
         docker exec unifi-video-backup rsync --recursive --archive --delete --quiet --times --checksum --delete-missing-args --one-file-system /data/ /backups/unifi-video/
         ;;
@@ -397,6 +401,10 @@ function do_restore {
 
     "transmission")
         docker exec transmission-backup rsync --recursive --archive --quiet --times --checksum /backups/transmission/ /config/
+        ;;
+
+    "unifi")
+        docker exec unifi-backup rsync --recursive --archive --delete --quiet --times --checksum --delete-missing-args --one-file-system /backups/unifi/ /config/
         ;;
 
     "unifi-video")
