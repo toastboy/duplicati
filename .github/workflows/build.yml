@@ -31,6 +31,9 @@ jobs:
         uses: docker/metadata-action@v5
         with:
           images: ghcr.io/${{ github.repository }}
+          tags: |
+            type=raw,value=latest,enable={{is_default_branch}} || {{github.event_name == 'schedule'}}
+            type=ref,event=branch
       - name: Build and push
         uses: docker/build-push-action@v5
         with:

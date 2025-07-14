@@ -5,7 +5,6 @@ FROM duplicati/duplicati
 # container.
 RUN apt-get update && \
     DEBIAN_FRONTEND=noninteractive apt-get install -y docker.io && \
-    apt-get dist-upgrade -y && \
     apt-get clean all
 
 # Add application-specific scripts
